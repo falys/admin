@@ -39,14 +39,14 @@
             <span class="svg-container svg-container_login">
               <svg-icon icon-class="user" />
             </span>
-            <el-input name="username" type="text" v-model="userForm.username" autoComplete="on" placeholder="username" />
+            <el-input name="username" type="text" v-model="userForm.username" autoComplete="on" placeholder="请输入用户名" />
           </el-form-item>
           <el-form-item prop="password">
             <span class="svg-container">
               <svg-icon icon-class="password"></svg-icon>
             </span>
             <el-input name="password" :type="pwdType" @keyup.enter.native="handleLogin" v-model="userForm.password" autoComplete="on"
-                      placeholder="password"></el-input>
+                      placeholder="请输入密码"></el-input>
             <span class="show-pwd" @click="showPwd"><svg-icon icon-class="eye" /></span>
           </el-form-item>
           <el-form-item>
@@ -109,20 +109,37 @@ export default {
       console.log(tab, event)
     },
     handleLogin() {
-      this.$refs.userForm.validate(valid => {
-        if (valid) {
-          this.loading = true
-          this.$store.dispatch('Login', this.userForm).then(() => {
-            this.loading = false
-            this.$router.push({ path: '/' })
-          }).catch(() => {
-            this.loading = false
-          })
-        } else {
-          console.log('error submit!!')
-          return false
-        }
-      })
+      if (this.activeName === 'first') {
+        this.$refs.phoneForm.validate(valid => {
+          if (valid) {
+            this.loading = true
+            this.$store.dispatch('Login', this.phoneForm).then(() => {
+              this.loading = false
+              this.$router.push({ path: '/' })
+            }).catch(() => {
+              this.loading = false
+            })
+          } else {
+            console.log('error submit!!')
+            return false
+          }
+        })
+      } else if (this.activeName === 'second') {
+        this.$refs.userForm.validate(valid => {
+          if (valid) {
+            this.loading = true
+            this.$store.dispatch('Login', this.userForm).then(() => {
+              this.loading = false
+              this.$router.push({ path: '/' })
+            }).catch(() => {
+              this.loading = false
+            })
+          } else {
+            console.log('error submit!!')
+            return false
+          }
+        })
+      }
     }
   }
 }
@@ -144,8 +161,8 @@ $light_gray:#eee;
       color: #000;
       height: 47px;
       &:-webkit-autofill {
-        -webkit-box-shadow: 0 0 0px 1000px $bg inset !important;
-        -webkit-text-fill-color: #fff !important;
+        -webkit-box-shadow: 0 0 0px 1000px #fff inset !important;
+        -webkit-text-fill-color: #000 !important;
       }
     }
   }
