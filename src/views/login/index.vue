@@ -76,7 +76,8 @@ export default {
     return {
       userForm: {
         username: '',
-        password: ''
+        password: '',
+        type: ''
       },
       userLoginRules: {
         username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
@@ -113,6 +114,7 @@ export default {
         this.$refs.phoneForm.validate(valid => {
           if (valid) {
             this.loading = true
+            this.userForm.type = 1
             this.$store.dispatch('Login', this.phoneForm).then(() => {
               this.loading = false
               this.$router.push({ path: '/' })
@@ -128,6 +130,7 @@ export default {
         this.$refs.userForm.validate(valid => {
           if (valid) {
             this.loading = true
+            this.userForm.type = 2
             this.$store.dispatch('Login', this.userForm).then(() => {
               this.loading = false
               this.$router.push({ path: '/' })
