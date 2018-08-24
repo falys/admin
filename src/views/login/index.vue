@@ -61,14 +61,21 @@
 </template>
 
 <script>
-import { validatPhone } from '@/utils/validate'
+import { validateMobile, validateCode } from '@/utils/validate'
 
 export default {
   name: 'login',
   data() {
-    const validateMobile = (rule, value, callback) => {
-      if (!validatPhone(value)) {
+    const validatePhone = (rule, value, callback) => {
+      if (!validateMobile(value)) {
         callback(new Error('请输入正确的用户名'))
+      } else {
+        callback()
+      }
+    }
+    const validateVerifyCode = (rule, value, callback) => {
+      if (!validateCode(value)) {
+        callback(new Error('请输入6位有效的验证码'))
       } else {
         callback()
       }
@@ -81,17 +88,17 @@ export default {
       },
       userLoginRules: {
         username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-        password: [{ required: true, trigger: 'blur' },
+        password: [{ required: true, message: '请输入密码', trigger: 'blur' },
           { min: 6, message: '密码不能少于6个字符', trigger: 'blur' }]
       },
       phoneForm: {
         phone: '',
-        code: ''
+        code: '',
+        type: ''
       },
       phoneLoginRules: {
-        phone: [{ required: true, message: '请输入正确的手机号码', trigger: 'blur', validator: validateMobile }],
-        code: [{ required: true, trigger: 'blur' },
-          { min: 6, message: '密码不能少于6个字符', trigger: 'blur' }]
+        phone: [{ required: true, message: '请输入正确的手机号码', trigger: 'blur', validator: validatePhone }],
+        code: [{ required: true, trigger: 'blur', validator: validateVerifyCode }]
       },
       loading: false,
       pwdType: 'password',
@@ -114,7 +121,7 @@ export default {
         this.$refs.phoneForm.validate(valid => {
           if (valid) {
             this.loading = true
-            this.userForm.type = 1
+            this.phoneForm.type = 1
             this.$store.dispatch('Login', this.phoneForm).then(() => {
               this.loading = false
               this.$router.push({ path: '/' })

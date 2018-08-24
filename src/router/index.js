@@ -24,7 +24,6 @@ import Layout from '../views/layout/Layout'
 export const constantRouterMap = [
   { path: '/login', component: () => import('@/views/login/index'), hidden: true },
   { path: '/404', component: () => import('@/views/404'), hidden: true },
-
   {
     path: '/',
     component: Layout,
@@ -36,43 +35,17 @@ export const constantRouterMap = [
       component: () => import('@/views/dashboard/index')
     }]
   },
-
   {
-    path: '/example',
+    path: '/user',
     component: Layout,
-    redirect: '/example/table',
-    name: 'Example',
-    meta: { title: 'Example', icon: 'example' },
-    children: [
-      {
-        path: 'table',
-        name: 'Table',
-        component: () => import('@/views/table/index'),
-        meta: { title: 'Table', icon: 'table' }
-      },
-      {
-        path: 'tree',
-        name: 'Tree',
-        component: () => import('@/views/tree/index'),
-        meta: { title: 'Tree', icon: 'tree' }
-      }
-    ]
-  },
-
-  {
-    path: '/form',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        name: 'Form',
-        component: () => import('@/views/form/index'),
-        meta: { title: 'Form', icon: 'form' }
-      }
-    ]
-  },
-
-  { path: '*', redirect: '/404', hidden: true }
+    name: 'user',
+    children: [{
+      path: 'index',
+      name: 'user_index',
+      component: () => import('@/views/user/index'),
+      meta: { title: '用户管理', icon: 'people' }
+    }]
+  }
 ]
 
 export default new Router({
@@ -80,4 +53,59 @@ export default new Router({
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRouterMap
 })
+
+// export const asyncRouterMap = [
+//   {
+//     path: '/user',
+//     component: Layout,
+//     name: 'user',
+//     children: [
+//       {
+//         path: 'index',
+//         name: 'user_index',
+//         component: () => import('@/views/user/index'),
+//         meta: { title: '用户管理', icon: 'people' }
+//       },
+//       {
+//         path: 'view/:userid',
+//         component: () => import('@/views/user/view'),
+//         name: 'view',
+//         meta: { title: '用户查看' }, hidden: true
+//       }
+//     ]
+//   },
+//   {
+//     path: '/permission',
+//     component: Layout,
+//     name: 'permission',
+//     meta: { title: '权限管理', icon: 'permission' },
+//     children: [
+//       {
+//         path: 'group',
+//         name: 'group',
+//         component: () => import('@/views/permission/grouplist'),
+//         meta: { title: '用户组列表', icon: 'group' }
+//       },
+//       {
+//         path: 'role',
+//         name: 'role',
+//         component: () => import('@/views/permission/role'),
+//         meta: { title: '角色列表', icon: 'role' }
+//       },
+//       {
+//         path: 'node',
+//         name: 'node',
+//         component: () => import('@/views/permission/nodes'),
+//         meta: { title: '权限组列表', icon: 'permission' }
+//       },
+//       {
+//         path: 'authallocate/:role_id',
+//         name: 'authallocate',
+//         component: () => import('@/views/permission/authallocate'),
+//         meta: { title: '权限分配' }, hidden: true
+//       }
+//     ]
+//   },
+//   { path: '*', name: '404', redirect: '/404', hidden: true }
+// ]
 

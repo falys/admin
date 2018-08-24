@@ -4,8 +4,7 @@ import { getToken, setToken, removeToken } from '@/utils/auth'
 const user = {
   state: {
     token: getToken(),
-    username: '',
-    roles: []
+    username: ''
   },
 
   mutations: {
@@ -14,9 +13,6 @@ const user = {
     },
     SET_USERNAME: (state, username) => {
       state.username = username
-    },
-    SET_ROLES: (state, roles) => {
-      state.roles = roles
     }
   },
 
@@ -31,6 +27,9 @@ const user = {
           commit('SET_TOKEN', data.token)
           setToken(data.username)
           commit('SET_USERNAME', data.token)
+          sessionStorage.setItem('username', data.username)
+          sessionStorage.setItem('token', data.token)
+          sessionStorage.setItem('token_expire', data.token_expire)
           resolve()
         }).catch(error => {
           reject(error)
