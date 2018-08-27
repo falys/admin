@@ -1,4 +1,4 @@
-import { login, logout, getInfo } from '@/api/login'
+import { login, refreshToken } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 
 const user = {
@@ -37,39 +37,28 @@ const user = {
       })
     },
 
-    // 获取用户信息
-    GetInfo({ commit, state }) {
+    refreshToken({ commit, state }) {
       return new Promise((resolve, reject) => {
-        getInfo(state.token).then(response => {
+        const token = sessionStorage.getItem('token')
+        refreshToken(token).then(response => {
           const data = response.data
-          if (data.roles && data.roles.length > 0) { // 验证返回的roles是否是一个非空数组
-            commit('SET_ROLES', data.roles)
-          } else {
-            reject('getInfo: roles must be a non-null array !')
-          }
-          commit('SET_NAME', data.name)
-          commit('SET_AVATAR', data.avatar)
-          resolve(response)
-        }).catch(error => {
-          reject(error)
-        })
-      })
-    },
-
-    // 登出
-    LogOut({ commit, state }) {
-      return new Promise((resolve, reject) => {
-        logout(state.token).then(() => {
-          commit('SET_TOKEN', '')
-          commit('SET_ROLES', [])
-          removeToken()
+          commit('SET_TOKEN', data.token)
           resolve()
+          sessionStorage.setItem('token', data.token)
+          sessionStorage.setItem('token_expire', data.token_expire)
         }).catch(error => {
           reject(error)
         })
       })
     },
 
+    LogOut({ commit, state }) {
+      commit('SET_TOKEN', '')
+      sessionStorage.removeItem('token')
+      sessionStorage.removeItem('username')
+      sessionStorage.removeItem('token_expire')
+      removeToken()
+    },
     // 前端 登出
     FedLogOut({ commit }) {
       return new Promise(resolve => {

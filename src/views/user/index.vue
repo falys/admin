@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-row class="row bg-white">
       <div class="chart-filter">
-        <el-button class="green-btn w-100" size="small" type="primary" @click="handleCreate" >新增用户</el-button>
+        <el-button class="green-btn w-100" size="small" v-if="btnUserAdd" type="primary" @click="handleCreate" >新增用户</el-button>
       </div>
       <el-table :data="list"  element-loading-text="Loading" border fit highlight-current-row>
         <el-table-column label='时间' align="center">
@@ -22,7 +22,7 @@
         </el-table-column>
         <el-table-column label="email" align="center">
           <template slot-scope="scope">
-            <img v-if="scope.row.license !== ''" :src="scope.row.license" width="50" height="50" >
+            {{scope.row.email}}
           </template>
         </el-table-column>
         <el-table-column label="用户状态" align="center">
@@ -32,9 +32,9 @@
         </el-table-column>
         <el-table-column label="操作" align="center">
           <template slot-scope="scope">
-            <el-button type="primary" size="mini" class="green-btn-min" >编辑</el-button>
-            <el-button type="primary" size="mini" class="green-btn-min"  @click="handleEnable(scope.row)">启用</el-button>
-            <el-button type="primary" size="mini" class="green-btn-min"  @click="handleEnable(scope.row)">禁用</el-button>
+            <el-button type="primary" v-if="scope.row.status==0" size="mini" class="green-btn-min"  @click="handleEnable(scope.row)">启用</el-button>
+            <el-button type="primary" v-else="scope.row.status==1"size="mini" class="green-btn-min"  @click="handleEnable(scope.row)">禁用</el-button>
+            <el-button type="primary" size="mini" class="green-btn-min" @click="handleDelete(scope.row.id)" >删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -67,13 +67,13 @@
         </el-form-item>
         <el-form-item label="用户组" prop="group_id" >
           <el-select  size="small" style="width: 230px;"  v-model="userForm.group_id" filterable placeholder="选择用户组">
-            <el-option v-for="item in  groupOptions" :key="item.id" :label="item.group_name" :value="item.id">
+            <el-option v-for="item in  groupOptions" :key="item.id" :label="item.title" :value="item.id">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="用户角色" prop="group_id" >
           <el-select  size="small" style="width: 230px;"  v-model="userForm.role_id" filterable placeholder="选择用户角色">
-            <el-option v-for="item in  roleOptions" :key="item.id" :label="item.role_name" :value="item.id">
+            <el-option v-for="item in  roleOptions" :key="item.id" :label="item.title" :value="item.id">
             </el-option>
           </el-select>
         </el-form-item>
@@ -93,8 +93,11 @@
 </template>
 
 <script>
-import { fetchList } from '@/api/user'
+import { fetchList, userStore, statusChange, userDelete } from '@/api/user'
 import { validateMobile, validateEmail } from '@/utils/validate'
+import { groupOptionsList } from '@/api/group'
+import { roleOptionsList } from '@/api/role'
+import { in_array } from '@/utils/index'
 
 export default {
   name: 'index',
@@ -160,26 +163,18 @@ export default {
         checkPass: [{ required: true, trigger: 'blur', validator: validatePass1 }],
         group_id: [{ required: true, message: '请选择用户组', trigger: 'change' }],
         role_id: [{ required: true, message: '请选择用户角色', trigger: 'change' }]
-      }
+      },
+      btnUserAdd: false,
+      btnReview: false,
+      btnStatusChange: false
     }
   },
   created() {
     this.getList()
+    this.getGroupOptions()
+    this.getRoleOptions()
   },
   methods: {
-    getList() {
-      this.listLoading = true
-      fetchList(this.listQuery).then(response => {
-        if (response.code === 1) {
-          console.log(response.data)
-          this.list = response.data.list
-          this.total = response.data.total
-          setTimeout(() => {
-            this.listLoading = false
-          }, 1.5 * 1000)
-        }
-      })
-    },
     handleCreate() {
       this.showDialog = true
     },
@@ -190,7 +185,133 @@ export default {
     handleCurrentChange(val) {
       this.listQuery.pageNum = val
       this.getList()
+    },
+    handleEnable(row) {
+      var strMsg = ''
+      var strStatus = ''
+      const data = {}
+      data.userid = row.id
+      if (row.status === 0) {
+        data.status = 1
+        strMsg = '启用成功'
+        strStatus = '启用'
+      } else if (row.status === 1) {
+        data.status = 0
+        strMsg = '禁用成功'
+        strStatus = '禁用'
+      }
+      statusChange(data).then(response => {
+        if (response.code === 1) {
+          for (const v of this.list) {
+            if (v.id === row.id) {
+              const index = this.list.indexOf(v)
+              row.status = data.status
+              row.status_str = strStatus
+              this.list.splice(index, 1, row)
+              break
+            }
+          }
+          this.$message({
+            title: '成功',
+            message: strMsg,
+            type: 'success',
+            duration: 3000
+          })
+        } else {
+          setTimeout(() => {
+            this.$message.error(response.msg)
+          }, 3 * 1000)
+        }
+      })
+    },
+    handleDelete(id) {
+      this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        const data = {}
+        data.userid = id
+        userDelete(data).then(response => {
+          if (response.code === 1) {
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            })
+            this.getList()
+          }
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
+    },
+    getList() {
+      this.listLoading = true
+      fetchList(this.listQuery).then(response => {
+        if (response.code === 1) {
+          this.total = response.data.total
+          this.list = response.data.list
+          setTimeout(() => {
+            this.listLoading = false
+          }, 1.5 * 1000)
+        }
+      })
+    },
+    getGroupOptions() {
+      groupOptionsList().then(response => {
+        if (response.code === 1) {
+          this.groupOptions = response.data
+          setTimeout(() => {
+            this.listLoading = false
+          }, 1.5 * 1000)
+        }
+      })
+    },
+    getRoleOptions() {
+      roleOptionsList().then(response => {
+        if (response.code === 1) {
+          this.roleOptions = response.data
+          setTimeout(() => {
+            this.listLoading = false
+          }, 1.5 * 1000)
+        }
+      })
+    },
+    createUser() {
+      this.$refs.userForm.validate(valid => {
+        if (valid) {
+          userStore(this.userForm).then(response => {
+            if (response.code === 1) {
+              this.$message({
+                title: '成功',
+                message: '创建成功！',
+                type: 'success',
+                duration: 3000
+              })
+              this.showDialog = false
+              this.getList()
+              this.$refs.userForm.resetFields()
+            }
+          })
+        }
+      })
+    },
+    getButtonStatus() {
+      const btnList = this.$store.getters.buttons
+      if (in_array('userAdd', btnList)) {
+        this.btnUserAdd = true
+      }
+      if (in_array('userReview', btnList)) {
+        this.btnReview = true
+      }
+      if (in_array('enable_disable', btnList)) {
+        this.btnStatusChange = true
+      }
     }
+
   }
 }
 </script>

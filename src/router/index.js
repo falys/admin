@@ -27,23 +27,12 @@ export const constantRouterMap = [
   {
     path: '/',
     component: Layout,
-    redirect: '/dashboard',
-    name: 'Dashboard',
+    redirect: '/home',
+    name: 'home',
     hidden: true,
     children: [{
-      path: 'dashboard',
-      component: () => import('@/views/dashboard/index')
-    }]
-  },
-  {
-    path: '/user',
-    component: Layout,
-    name: 'user',
-    children: [{
-      path: 'index',
-      name: 'user_index',
-      component: () => import('@/views/user/index'),
-      meta: { title: '用户管理', icon: 'people' }
+      path: 'home',
+      component: () => import('@/views/home/index')
     }]
   }
 ]
@@ -54,58 +43,50 @@ export default new Router({
   routes: constantRouterMap
 })
 
-// export const asyncRouterMap = [
-//   {
-//     path: '/user',
-//     component: Layout,
-//     name: 'user',
-//     children: [
-//       {
-//         path: 'index',
-//         name: 'user_index',
-//         component: () => import('@/views/user/index'),
-//         meta: { title: '用户管理', icon: 'people' }
-//       },
-//       {
-//         path: 'view/:userid',
-//         component: () => import('@/views/user/view'),
-//         name: 'view',
-//         meta: { title: '用户查看' }, hidden: true
-//       }
-//     ]
-//   },
-//   {
-//     path: '/permission',
-//     component: Layout,
-//     name: 'permission',
-//     meta: { title: '权限管理', icon: 'permission' },
-//     children: [
-//       {
-//         path: 'group',
-//         name: 'group',
-//         component: () => import('@/views/permission/grouplist'),
-//         meta: { title: '用户组列表', icon: 'group' }
-//       },
-//       {
-//         path: 'role',
-//         name: 'role',
-//         component: () => import('@/views/permission/role'),
-//         meta: { title: '角色列表', icon: 'role' }
-//       },
-//       {
-//         path: 'node',
-//         name: 'node',
-//         component: () => import('@/views/permission/nodes'),
-//         meta: { title: '权限组列表', icon: 'permission' }
-//       },
-//       {
-//         path: 'authallocate/:role_id',
-//         name: 'authallocate',
-//         component: () => import('@/views/permission/authallocate'),
-//         meta: { title: '权限分配' }, hidden: true
-//       }
-//     ]
-//   },
-//   { path: '*', name: '404', redirect: '/404', hidden: true }
-// ]
+export const asyncRouterMap = [
+  {
+    path: '/user',
+    component: Layout,
+    name: 'user',
+    children: [{
+      path: 'index',
+      name: 'user_index',
+      component: () => import('@/views/user/index'),
+      meta: { title: '用户管理', icon: 'people' }
+    }]
+  },
+  {
+    path: '/permission',
+    component: Layout,
+    name: 'permission',
+    meta: { title: '权限管理', icon: 'permission' },
+    children: [
+      {
+        path: 'group',
+        name: 'group',
+        component: () => import('@/views/permission/grouplist'),
+        meta: { title: '用户组管理', icon: 'group' }
+      },
+      {
+        path: 'role',
+        name: 'role',
+        component: () => import('@/views/permission/role'),
+        meta: { title: '角色管理', icon: 'role' }
+      },
+      {
+        path: 'node',
+        name: 'node',
+        component: () => import('@/views/permission/nodes'),
+        meta: { title: '权限管理', icon: 'permission' }
+      },
+      {
+        path: 'authallocate/:role_id',
+        name: 'authallocate',
+        component: () => import('@/views/permission/authallocate'),
+        meta: { title: '权限分配' }, hidden: true
+      }
+    ]
+  },
+  { path: '*', name: '404', redirect: '/404', hidden: true }
+]
 

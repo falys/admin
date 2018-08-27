@@ -12,17 +12,23 @@ export function login(username, password, type) {
   })
 }
 
-export function getInfo(token) {
+export function refreshToken() {
   return request({
-    url: '/user/info',
-    method: 'get',
-    params: { token }
+    url: '/api/v1/user/refreshToken',
+    method: 'get'
   })
 }
 
-export function logout() {
+export function getButtons() {
   return request({
-    url: '/user/logout',
-    method: 'post'
+    url: '/api/v1/access/btnlist',
+    method: 'get'
+  })
+}
+
+export function getRoutes() {
+  return request({
+    url: '/api/v1/access/navlist',
+    method: 'get'
   })
 }
